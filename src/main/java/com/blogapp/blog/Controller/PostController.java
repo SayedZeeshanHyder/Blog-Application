@@ -1,5 +1,6 @@
 package com.blogapp.blog.Controller;
 
+import com.blogapp.blog.Config.AppConstants;
 import com.blogapp.blog.Payloads.ApiResponse;
 import com.blogapp.blog.Payloads.PostDto;
 import com.blogapp.blog.Payloads.PostResponse;
@@ -45,10 +46,10 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<PostResponse> getPosts(
-            @RequestParam(defaultValue = "10", required = false) int pageSize,
-            @RequestParam(defaultValue = "0", required = false) int pageNo,
-            @RequestParam(defaultValue = "postId", required = false) String sortBy,
-            @RequestParam(defaultValue = "asc",required = false) String sortDir) {
+            @RequestParam(defaultValue = AppConstants.DEFAULTPAGESIZE, required = false) int pageSize,
+            @RequestParam(defaultValue = AppConstants.DEFAULTPAGENUMBER, required = false) int pageNo,
+            @RequestParam(defaultValue = AppConstants.DEFAULTPOSTSORTFIELD, required = false) String sortBy,
+            @RequestParam(defaultValue = AppConstants.DEFAULTPOSTSORTORDER,required = false) String sortDir) {
         PostResponse postResponse = postService.getPosts(pageNo, pageSize, sortBy,sortDir);
         return ResponseEntity.ok(postResponse);
     }
@@ -63,6 +64,12 @@ public class PostController {
     public ResponseEntity<ApiResponse> deletePost(@PathVariable int postId) {
         postService.deletePost(postId);
         return ResponseEntity.ok(new ApiResponse("Deleted Post with Post Id " + postId, true));
+    }
+
+    @GetMapping("/search/{keywords}")
+    public ResponseEntity<List<PostDto>> searchPosts(@PathVariable String keywords) {
+        List<PostDto> postDtos = postService.searchPost(keywords);
+        return ResponseEntity.ok(postDtos);
     }
 
 
