@@ -5,13 +5,17 @@ import com.blogapp.blog.Entities.Post;
 import com.blogapp.blog.Entities.User;
 import com.blogapp.blog.Exceptions.ResourceNotFoundException;
 import com.blogapp.blog.Payloads.PostDto;
+import com.blogapp.blog.Payloads.PostResponse;
 import com.blogapp.blog.Repository.CategoryRepository;
 import com.blogapp.blog.Repository.PostRepository;
 import com.blogapp.blog.Repository.UserRepository;
 import com.blogapp.blog.Service.PostService;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,10 +66,21 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getPosts() {
-        List<Post> posts = postRepository.findAll();
+    public PostResponse getPosts(int pageNo, int pageSize,String sortBy,String sortDir) {
+
+        Sort sortingConfig = sortDir.equalsIgnoreCase("asc") ? Sort.by(Sort.Direction.ASC, sortBy) : Sort.by(Sort.Direction.DESC, sortBy);
+        PostResponse postResponse = new PostResponse();
+        Pageable pageable = PageRequest.of(pageNo, pageSize,sortingConfig);
+        Page<Post> pagePost = postRepository.findAll(pageable);
+        List<Post> posts = pagePost.getContent();
         List<PostDto> postDtos = posts.stream().map(post -> modelMapper.map(post, PostDto.class)).collect(Collectors.toList());
-        return postDtos;
+        postResponse.setContent(postDtos);
+        postResponse.setPageNumber(pagePost.getNumber());
+        postResponse.setPageSize(pagePost.getSize());
+        postResponse.setTotalElements(pagePost.getNumberOfElements());
+        postResponse.setTotalPages(pagePost.getTotalPages());
+        postResponse.setLastPage(pagePost.isLast());
+        return postResponse;
     }
 
     @Override
