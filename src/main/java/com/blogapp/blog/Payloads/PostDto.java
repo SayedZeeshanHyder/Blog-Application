@@ -1,6 +1,10 @@
 package com.blogapp.blog.Payloads;
 
+import com.blogapp.blog.Entities.Comments;
+
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 public class PostDto {
 
@@ -10,6 +14,7 @@ public class PostDto {
     private Date addedDate;
     private UserDto user;
     private CategoryDto category;
+    private Set<CommentDto> comments = new HashSet<>();
 
     public String getTitle() {
         return title;
